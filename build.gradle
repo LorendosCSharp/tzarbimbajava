@@ -61,12 +61,15 @@ task jarAndroid {
                 .execute(null, new File("$buildDir/libs")).waitForProcessOutput(System.out, System.err)
     }
 }
-
+// Check if running in GitHub Actions
+def isGithubActions = System.getenv('GITHUB_ACTIONS') != null
 jar {
     archiveFileName = "${base.archivesBaseName}desktop.jar"
     doFirst {
         delete{
-            delete "C:/Users/eladr/AppData/Roaming/Mindustry/mods/tzarbimbajavadesktop.jar"
+            if(!isGithubActions){
+                delete "C:/Users/eladr/AppData/Roaming/Mindustry/mods/tzarbimbajavadesktop.jar"
+            }
         }
     }
     from {
@@ -84,8 +87,10 @@ jar {
 
     doLast {
         copy {
-            from "$buildDir/libs/${project.archivesBaseName}desktop.jar"
-            into "C:/Users/eladr/AppData/Roaming/Mindustry/mods/"
+            if(!isGithubActions){
+                from "$buildDir/libs/${project.archivesBaseName}desktop.jar"
+                into "C:/Users/eladr/AppData/Roaming/Mindustry/mods/"
+            }
         }
     }
 }
