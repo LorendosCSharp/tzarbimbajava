@@ -57,18 +57,18 @@ task jarAndroid {
 
         def d8 = isWindows ? "d8.bat" : "d8"
 
-        "$d8 $dependencies --min-api 14 --output ${project.archivesBaseName}Android.jar ${project.archivesBaseName}Desktop.jar"
+        "$d8 $dependencies --min-api 14 --output ${project.archivesBaseName}.jar ${project.archivesBaseName}.jar"
                 .execute(null, new File("$buildDir/libs")).waitForProcessOutput(System.out, System.err)
     }
 }
 // Check if running in GitHub Actions
 def isGithubActions = System.getenv('GITHUB_ACTIONS') != null
 jar {
-    archiveFileName = "${base.archivesBaseName}desktop.jar"
+    archiveFileName = "${base.archivesBaseName}.jar"
     doFirst {
         delete{
             if(!isGithubActions){
-                delete "C:/Users/eladr/AppData/Roaming/Mindustry/mods/tzarbimbajavadesktop.jar"
+                delete "C:/Users/eladr/AppData/Roaming/Mindustry/mods/tzarbimbajava.jar"
             }
         }
     }
@@ -88,7 +88,7 @@ jar {
     doLast {
         copy {
             if(!isGithubActions){
-                from "$buildDir/libs/${project.archivesBaseName}desktop.jar"
+                from "$buildDir/libs/${project.archivesBaseName}.jar"
                 into "C:/Users/eladr/AppData/Roaming/Mindustry/mods/"
             }
         }
@@ -100,12 +100,12 @@ task deploy(type: Jar) {
     dependsOn jar
     archiveFileName = "${base.archivesBaseName}.jar"
 
-    from { [zipTree("$buildDir/libs/${project.archivesBaseName}desktop.jar"), zipTree("$buildDir/libs/${project.archivesBaseName}Android.jar")] }
+    from { [zipTree("$buildDir/libs/${project.archivesBaseName}.jar"), zipTree("$buildDir/libs/${project.archivesBaseName}.jar")] }
 
     doLast {
         delete {
-            delete "$buildDir/libs/${project.archivesBaseName}desktop.jar"
-            delete "$buildDir/libs/${project.archivesBaseName}Android.jar"
+            delete "$buildDir/libs/${project.archivesBaseName}.jar"
+            delete "$buildDir/libs/${project.archivesBaseName}.jar"
         }
     }
 }
