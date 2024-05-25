@@ -43,17 +43,28 @@ configurations.all {
     }
 }
 
-task jarAndroid {
-    dependsOn "jar"
+// Check if running in GitHub Actions
+def isGithubActions = System.getenv('GITHUB_ACTIONS') != null
+
+task jarAndroid(type: Jar) {
+    dependsOn jar
 
     doLast {
-        if (!sdkRoot || !new File(sdkRoot).exists()) throw new GradleException("No valid Android SDK found. Ensure that ANDROID_HOME is set to your Android SDK directory.")
+        if (!sdkRoot || !new File(sdkRoot).exists()) {
+            throw new GradleException("No valid Android SDK found. Ensure that ANDROID_HOME is set to your Android SDK directory.")
+        }
 
-        def platformRoot = new File("$sdkRoot/platforms/").listFiles().sort().reverse().find { f -> new File(f, "android.jar").exists() }
+        def platformRoot = new File("$sdkRoot/platforms/").listFiles().sort().reverse().find { f ->
+            new File(f, "android.jar").exists()
+        }
 
-        if (!platformRoot) throw new GradleException("No android.jar found. Ensure that you have an Android platform installed.")
+        if (!platformRoot) {
+            throw new GradleException("No android.jar found. Ensure that you have an Android platform installed.")
+        }
 
-        def dependencies = (configurations.compileClasspath.asList() + configurations.runtimeClasspath.asList() + [new File(platformRoot, "android.jar")]).collect { "--classpath $it.path" }.join(" ")
+        def dependencies = (configurations.compileClasspath.asList() + configurations.runtimeClasspath.asList() + [new File(platformRoot, "android.jar")])
+                .collect { "--classpath $it.path" }
+                .join(" ")
 
         def d8 = isWindows ? "d8.bat" : "d8"
 
@@ -61,17 +72,16 @@ task jarAndroid {
                 .execute(null, new File("$buildDir/libs")).waitForProcessOutput(System.out, System.err)
     }
 }
-// Check if running in GitHub Actions
-def isGithubActions = System.getenv('GITHUB_ACTIONS') != null
+
 jar {
     archiveFileName = "${base.archivesBaseName}.jar"
+
     doFirst {
-        delete{
-            if(!isGithubActions){
-                delete "C:/Users/eladr/AppData/Roaming/Mindustry/mods/tzarbimbajava.jar"
-            }
+        if (!isGithubActions) {
+            delete "C:/Users/eladr/AppData/Roaming/Mindustry/mods/tzarbimbajava.jar"
         }
     }
+
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
@@ -84,10 +94,9 @@ jar {
         include "**"
     }
 
-
     doLast {
-        copy {
-            if(!isGithubActions){
+        if (!isGithubActions) {
+            copy {
                 from "$buildDir/libs/${project.archivesBaseName}.jar"
                 into "C:/Users/eladr/AppData/Roaming/Mindustry/mods/"
             }
@@ -95,18 +104,13 @@ jar {
     }
 }
 
-task deploy(type: Jar) {
-    dependsOn jarAndroid
-    dependsOn jar
-    archiveFileName = "${base.archivesBaseName}.jar"
+task deploy(type: Copy) {
+    dependsOn jarAndroid, jar
 
-    from { [zipTree("$buildDir/libs/${project.archivesBaseName}.jar"), zipTree("$buildDir/libs/${project.archivesBaseName}.jar")] }
+    from zipTree("$buildDir/libs/${project.archivesBaseName}.jar")
+    into "$buildDir/libs/deploy"
 
     doLast {
-        delete {
-            delete "$buildDir/libs/${project.archivesBaseName}.jar"
-            delete "$buildDir/libs/${project.archivesBaseName}.jar"
-        }
+        delete "$buildDir/libs/${project.archivesBaseName}.jar"
     }
 }
-

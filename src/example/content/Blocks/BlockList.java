@@ -16,6 +16,7 @@ import mindustry.world.blocks.defense.turrets.PowerTurret;
 import mindustry.world.blocks.power.PowerBlock;
 import mindustry.world.blocks.power.PowerDistributor;
 import mindustry.world.blocks.power.PowerGenerator;
+import mindustry.world.blocks.power.SolarGenerator;
 
 import static mindustry.type.ItemStack.with;
 
@@ -26,13 +27,15 @@ public class BlockList {
         quantumReassembler=new PowerBlock("quantumreassembler"){{
             requirements(Category.production, with(Items.silicon, 200, Items.thorium, 150));
             localizedName="Quantum Reassembler";
+            size=3;
 
         }};
-        Energy = new PowerGenerator("atomiccore"){{
+        Energy = new SolarGenerator("atomiccore"){{
             requirements(Category.power, with(Items.coal, 200, Items.copper, 150));
             localizedName="Atomic core";
             outputsPower=true;
             powerProduction=1000000f;
+            size=5;
 
         }};
         supadupaturret= new PowerTurret("shockturret"){{
