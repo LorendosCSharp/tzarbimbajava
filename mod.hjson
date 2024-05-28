@@ -7,3 +7,6 @@
     main: example.main
     java: true
     //test2
+"dependencies": [
+  "!mod-library"
+]

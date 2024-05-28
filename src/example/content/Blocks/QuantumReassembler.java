@@ -41,12 +41,12 @@ public class QuantumReassembler extends Block {
 
     private void spiner(Tile tile) {
         this.updateTile();
-        Drawf.spinSprite(this.rotator, tile.getX(), tile.getY(), this.rotationTime);
+        Drawf.spinSprite(this.rotator, tile.getX(), tile.getY(), QuantumReassembler.this.rotationTime);
     }
 
     private void updateTile() {
         // Update rotationTime independently for each instance
-        this.rotationTime += Time.delta * 0.4f;
+        QuantumReassembler.this.rotationTime += Time.delta * 0.4f;
     }
 
     public QuantumReassembler(String name) {
